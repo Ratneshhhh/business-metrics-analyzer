@@ -1,0 +1,105 @@
+@startuml
+' ERD for business metrics analyzer dataset (ClassicModels example)
+' Entities and relationships
+
+entity "offices" as offices {
+  *officeCode : string (PK)
+  --
+  city : string
+  phone : string
+  addressLine1 : string
+  addressLine2 : string
+  state : string
+  country : string
+  postalCode : string
+  territory : string
+}
+
+entity "employees" as employees {
+  *employeeNumber : int (PK)
+  --
+  lastName : string
+  firstName : string
+  extension : string
+  email : string
+  officeCode : string (FK -> offices.officeCode)
+  reportsTo : int (FK -> employees.employeeNumber)
+  jobTitle : string
+}
+
+entity "customers" as customers {
+  *customerNumber : int (PK)
+  --
+  customerName : string
+  contactLastName : string
+  contactFirstName : string
+  phone : string
+  addressLine1 : string
+  addressLine2 : string
+  city : string
+  state : string
+  postalCode : string
+  country : string
+  salesRepEmployeeNumber : int (FK -> employees.employeeNumber)
+  creditLimit : decimal
+}
+
+entity "orders" as orders {
+  *orderNumber : int (PK)
+  --
+  orderDate : date
+  requiredDate : date
+  shippedDate : date
+  status : string
+  comments : text
+  customerNumber : int (FK -> customers.customerNumber)
+}
+
+entity "orderdetails" as orderdetails {
+  *orderNumber : int (FK -> orders.orderNumber)
+  *productCode : string (FK -> products.productCode)
+  --
+  quantityOrdered : int
+  priceEach : decimal
+  orderLineNumber : int
+}
+
+entity "payments" as payments {
+  *customerNumber : int (FK -> customers.customerNumber)
+  *checkNumber : string (PK)
+  --
+  paymentDate : date
+  amount : decimal
+}
+
+entity "productlines" as productlines {
+  *productLine : string (PK)
+  --
+  textDescription : string
+  htmlDescription : string
+  image : blob
+}
+
+entity "products" as products {
+  *productCode : string (PK)
+  --
+  productName : string
+  productLine : string (FK -> productlines.productLine)
+  productScale : string
+  productVendor : string
+  productDescription : string
+  MSRP : decimal
+  quantityInStock : int
+  buyPrice : decimal
+}
+
+orders }o--|| customers
+customers ||--o{ payments
+customers |o--o{ orders
+employees ||--o{ customers
+employees ||--o{ employees : reportsTo
+offices ||--o{ employees
+products ||--o{ orderdetails
+orders ||--o{ orderdetails
+productlines ||--o{ products
+@enduml
